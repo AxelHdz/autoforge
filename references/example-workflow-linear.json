@@ -1,0 +1,66 @@
+{
+  "name": "Autoforge Ref: Webhook Echo",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "echo",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "ref-linear-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-1",
+              "name": "received",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "assign-2",
+              "name": "processed_at",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "assign-3",
+              "name": "source",
+              "value": "autoforge",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000002",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

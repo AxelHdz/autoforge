@@ -15,10 +15,15 @@
       "Write",
       "Glob",
       "Grep",
+      "Bash(docker*)",
+      "Bash(curl*)",
+      "Bash(chub*)",
       "Bash(python*)",
       "Bash(npx*)",
       "Bash(ls*)",
-      "Bash(cat*)"
+      "Bash(cat*)",
+      "Bash(mkdir*)",
+      "Bash(jq*)"
     ]
   }
 }

@@ -1,0 +1,11 @@
+services:
+  n8n:
+    image: n8nio/n8n:1.85.4
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_RUNNERS_ENABLED=true
+    volumes:
+      - n8n_data:/home/node/.n8n
+volumes:
+  n8n_data:

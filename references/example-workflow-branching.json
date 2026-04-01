@@ -1,0 +1,144 @@
+{
+  "name": "Autoforge Ref: Priority Router",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "priority-router",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "b1b2c3d4-0002-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "ref-branching-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-1",
+              "leftValue": "={{ $json.body.priority }}",
+              "rightValue": "high",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b1b2c3d4-0002-4000-8000-000000000002",
+      "name": "Is High Priority?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-urgent-1",
+              "name": "status",
+              "value": "URGENT",
+              "type": "string"
+            },
+            {
+              "id": "assign-urgent-2",
+              "name": "action",
+              "value": "Escalated to on-call team",
+              "type": "string"
+            },
+            {
+              "id": "assign-urgent-3",
+              "name": "original_message",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "b1b2c3d4-0002-4000-8000-000000000003",
+      "name": "Escalate",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-normal-1",
+              "name": "status",
+              "value": "QUEUED",
+              "type": "string"
+            },
+            {
+              "id": "assign-normal-2",
+              "name": "action",
+              "value": "Added to backlog",
+              "type": "string"
+            },
+            {
+              "id": "assign-normal-3",
+              "name": "original_message",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "b1b2c3d4-0002-4000-8000-000000000004",
+      "name": "Queue",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [680, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Is High Priority?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is High Priority?": {
+      "main": [
+        [
+          {
+            "node": "Escalate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

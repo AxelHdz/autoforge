@@ -1,0 +1,204 @@
+{
+  "name": "Autoforge Ref: Data Enrichment Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "enrich",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "c1b2c3d4-0003-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "ref-transform-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "extract-1",
+              "name": "domain",
+              "value": "={{ $json.body.email.split('@')[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "extract-2",
+              "name": "name",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "extract-3",
+              "name": "email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "c1b2c3d4-0003-4000-8000-000000000002",
+      "name": "Extract Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-1",
+              "leftValue": "={{ $json.domain }}",
+              "rightValue": "gmail.com",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c1b2c3d4-0003-4000-8000-000000000003",
+      "name": "Is Business Email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "biz-1",
+              "name": "lead_type",
+              "value": "business",
+              "type": "string"
+            },
+            {
+              "id": "biz-2",
+              "name": "score",
+              "value": "80",
+              "type": "number"
+            },
+            {
+              "id": "biz-3",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "biz-4",
+              "name": "company_domain",
+              "value": "={{ $json.domain }}",
+              "type": "string"
+            },
+            {
+              "id": "biz-5",
+              "name": "action",
+              "value": "Route to sales team",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "c1b2c3d4-0003-4000-8000-000000000004",
+      "name": "Business Lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "personal-1",
+              "name": "lead_type",
+              "value": "personal",
+              "type": "string"
+            },
+            {
+              "id": "personal-2",
+              "name": "score",
+              "value": "30",
+              "type": "number"
+            },
+            {
+              "id": "personal-3",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "personal-4",
+              "name": "action",
+              "value": "Add to nurture campaign",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "c1b2c3d4-0003-4000-8000-000000000005",
+      "name": "Personal Lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [900, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Fields": {
+      "main": [
+        [
+          {
+            "node": "Is Business Email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Business Email?": {
+      "main": [
+        [
+          {
+            "node": "Business Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Personal Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
