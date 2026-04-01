@@ -1,0 +1,225 @@
+{
+  "name": "Lead Scoring & Routing",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "lead-scoring",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "f4a1b2c3-1001-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "lead-scoring-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfor (const item of items) {\n  const body = item.json.body || item.json;\n  const companySize = Number(body.company_size) || 0;\n  const industry = (body.industry || '').toLowerCase();\n\n  let score = 30;\n\n  if (industry === 'tech') {\n    score += 20;\n  }\n\n  if (companySize > 500) {\n    score += 30;\n  } else if (companySize > 100) {\n    score += 20;\n  }\n\n  item.json = {\n    lead_score: score,\n    company_name: body.company_name || '',\n    contact_name: body.contact_name || '',\n    contact_email: body.contact_email || '',\n    company_size: companySize,\n    industry: body.industry || ''\n  };\n}\n\nreturn items;"
+      },
+      "id": "f4a1b2c3-1001-4000-8000-000000000002",
+      "name": "Score Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-score",
+              "leftValue": "={{ $json.lead_score }}",
+              "rightValue": 70,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f4a1b2c3-1001-4000-8000-000000000003",
+      "name": "Is Enterprise?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ent-1",
+              "name": "slack_channel",
+              "value": "#sales-enterprise",
+              "type": "string"
+            },
+            {
+              "id": "ent-2",
+              "name": "slack_message",
+              "value": "={{ '🏢 Enterprise Lead\\n\\nScore: ' + $json.lead_score + '\\nCompany: ' + $json.company_name + '\\nContact: ' + $json.contact_name + '\\nEmail: ' + $json.contact_email + '\\nIndustry: ' + $json.industry + '\\nCompany Size: ' + $json.company_size }}",
+              "type": "string"
+            },
+            {
+              "id": "ent-3",
+              "name": "lead_score",
+              "value": "={{ $json.lead_score }}",
+              "type": "number"
+            },
+            {
+              "id": "ent-4",
+              "name": "company_name",
+              "value": "={{ $json.company_name }}",
+              "type": "string"
+            },
+            {
+              "id": "ent-5",
+              "name": "contact_name",
+              "value": "={{ $json.contact_name }}",
+              "type": "string"
+            },
+            {
+              "id": "ent-6",
+              "name": "contact_email",
+              "value": "={{ $json.contact_email }}",
+              "type": "string"
+            },
+            {
+              "id": "ent-7",
+              "name": "industry",
+              "value": "={{ $json.industry }}",
+              "type": "string"
+            },
+            {
+              "id": "ent-8",
+              "name": "status",
+              "value": "sent",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "f4a1b2c3-1001-4000-8000-000000000004",
+      "name": "Notify Enterprise",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "smb-1",
+              "name": "slack_channel",
+              "value": "#sales-smb",
+              "type": "string"
+            },
+            {
+              "id": "smb-2",
+              "name": "slack_message",
+              "value": "={{ '📋 SMB Lead\\n\\nScore: ' + $json.lead_score + '\\nCompany: ' + $json.company_name + '\\nContact: ' + $json.contact_name + '\\nEmail: ' + $json.contact_email + '\\nIndustry: ' + $json.industry + '\\nCompany Size: ' + $json.company_size }}",
+              "type": "string"
+            },
+            {
+              "id": "smb-3",
+              "name": "lead_score",
+              "value": "={{ $json.lead_score }}",
+              "type": "number"
+            },
+            {
+              "id": "smb-4",
+              "name": "company_name",
+              "value": "={{ $json.company_name }}",
+              "type": "string"
+            },
+            {
+              "id": "smb-5",
+              "name": "contact_name",
+              "value": "={{ $json.contact_name }}",
+              "type": "string"
+            },
+            {
+              "id": "smb-6",
+              "name": "contact_email",
+              "value": "={{ $json.contact_email }}",
+              "type": "string"
+            },
+            {
+              "id": "smb-7",
+              "name": "industry",
+              "value": "={{ $json.industry }}",
+              "type": "string"
+            },
+            {
+              "id": "smb-8",
+              "name": "status",
+              "value": "sent",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "f4a1b2c3-1001-4000-8000-000000000005",
+      "name": "Notify SMB",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [900, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Score Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Lead": {
+      "main": [
+        [
+          {
+            "node": "Is Enterprise?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Enterprise?": {
+      "main": [
+        [
+          {
+            "node": "Notify Enterprise",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify SMB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

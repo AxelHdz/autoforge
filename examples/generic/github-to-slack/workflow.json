@@ -1,0 +1,162 @@
+{
+  "name": "GitHub Bug Label to Slack Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "github-bug-to-slack",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "d1e2f3a4-0001-4000-8000-000000000001",
+      "name": "GitHub Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "github-bug-to-slack-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-label-bug",
+              "leftValue": "={{ $json.body.label.name }}",
+              "rightValue": "bug",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d1e2f3a4-0001-4000-8000-000000000002",
+      "name": "Is Bug Label?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-slack-1",
+              "name": "slack_channel",
+              "value": "#engineering",
+              "type": "string"
+            },
+            {
+              "id": "assign-slack-2",
+              "name": "slack_message",
+              "value": "={{ \"Bug Report: \" + $json.body.issue.title + \"\\nReported by: @\" + $json.body.issue.user.login + \"\\nLabel: \" + $json.body.label.name + \"\\nLink: \" + $json.body.issue.html_url }}",
+              "type": "string"
+            },
+            {
+              "id": "assign-slack-3",
+              "name": "status",
+              "value": "sent",
+              "type": "string"
+            },
+            {
+              "id": "assign-slack-4",
+              "name": "issue_title",
+              "value": "={{ $json.body.issue.title }}",
+              "type": "string"
+            },
+            {
+              "id": "assign-slack-5",
+              "name": "reporter",
+              "value": "={{ $json.body.issue.user.login }}",
+              "type": "string"
+            },
+            {
+              "id": "assign-slack-6",
+              "name": "issue_url",
+              "value": "={{ $json.body.issue.html_url }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "d1e2f3a4-0001-4000-8000-000000000003",
+      "name": "Send Slack Notification",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-ignore-1",
+              "name": "status",
+              "value": "ignored",
+              "type": "string"
+            },
+            {
+              "id": "assign-ignore-2",
+              "name": "reason",
+              "value": "Label is not bug",
+              "type": "string"
+            },
+            {
+              "id": "assign-ignore-3",
+              "name": "label_received",
+              "value": "={{ $json.body.label.name }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "d1e2f3a4-0001-4000-8000-000000000004",
+      "name": "Ignore Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [680, 400]
+    }
+  ],
+  "connections": {
+    "GitHub Webhook": {
+      "main": [
+        [
+          {
+            "node": "Is Bug Label?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Bug Label?": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignore Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
