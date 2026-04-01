@@ -12,7 +12,10 @@
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [240, 300],
+      "position": [
+        240,
+        300
+      ],
       "webhookId": "customer-onboarding-webhook"
     },
     {
@@ -28,13 +31,13 @@
             {
               "id": "email-2",
               "name": "email_subject",
-              "value": "Welcome to our platform, {{ $json.body.customer_name }}!",
+              "value": "=Welcome to our platform, {{ $json.body.customer_name }}!",
               "type": "string"
             },
             {
               "id": "email-3",
               "name": "email_body",
-              "value": "Hi {{ $json.body.customer_name }}, welcome aboard! We're thrilled to have {{ $json.body.company_name }} on the {{ $json.body.plan_type }} plan. Our team will reach out shortly to help you get started.",
+              "value": "=Hi {{ $json.body.customer_name }}, welcome aboard! We're thrilled to have {{ $json.body.company_name }} on the {{ $json.body.plan_type }} plan. Our team will reach out shortly to help you get started.",
               "type": "string"
             },
             {
@@ -74,7 +77,10 @@
       "name": "Send Welcome Email",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [460, 300]
+      "position": [
+        460,
+        300
+      ]
     },
     {
       "parameters": {
@@ -83,7 +89,7 @@
             {
               "id": "task-1",
               "name": "task_title",
-              "value": "Onboarding: {{ $json.customer_name }} ({{ $json.company_name }})",
+              "value": "=Onboarding: {{ $json.customer_name }} ({{ $json.company_name }})",
               "type": "string"
             },
             {
@@ -101,7 +107,7 @@
             {
               "id": "task-4",
               "name": "task_description",
-              "value": "Complete onboarding for {{ $json.customer_name }} ({{ $json.customer_email }}) at {{ $json.company_name }}. Plan: {{ $json.plan_type }}.",
+              "value": "=Complete onboarding for {{ $json.customer_name }} ({{ $json.customer_email }}) at {{ $json.company_name }}. Plan: {{ $json.plan_type }}.",
               "type": "string"
             },
             {
@@ -135,7 +141,10 @@
       "name": "Create Onboarding Task",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [680, 300]
+      "position": [
+        680,
+        300
+      ]
     },
     {
       "parameters": {
@@ -190,7 +199,10 @@
       "name": "Schedule Check-In Reminder",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [900, 300]
+      "position": [
+        900,
+        300
+      ]
     },
     {
       "parameters": {
@@ -219,7 +231,10 @@
       "name": "Is Enterprise?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [1120, 300]
+      "position": [
+        1120,
+        300
+      ]
     },
     {
       "parameters": {
@@ -234,7 +249,7 @@
             {
               "id": "slack-2",
               "name": "slack_message",
-              "value": "New enterprise customer signed up! {{ $json.customer_name }} from {{ $json.company_name }} ({{ $json.customer_email }}). Plan: {{ $json.plan_type }}. Please reach out to schedule a kickoff call.",
+              "value": "=New enterprise customer signed up! {{ $json.customer_name }} from {{ $json.company_name }} ({{ $json.customer_email }}). Plan: {{ $json.plan_type }}. Please reach out to schedule a kickoff call.",
               "type": "string"
             },
             {
@@ -250,7 +265,10 @@
       "name": "Notify Account Team",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [1340, 200]
+      "position": [
+        1340,
+        200
+      ]
     },
     {
       "parameters": {
@@ -265,7 +283,7 @@
             {
               "id": "complete-2",
               "name": "message",
-              "value": "Onboarding pipeline complete for {{ $json.customer_name }}. No enterprise notification required.",
+              "value": "=Onboarding pipeline complete for {{ $json.customer_name }}. No enterprise notification required.",
               "type": "string"
             }
           ]
@@ -275,7 +293,10 @@
       "name": "Complete Without Notification",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [1340, 400]
+      "position": [
+        1340,
+        400
+      ]
     }
   ],
   "connections": {

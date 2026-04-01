@@ -87,8 +87,9 @@ TEST_RESPONSE: <what came back>
 | Error Type | Classification | Action |
 |-----------|---------------|--------|
 | Invalid JSON structure | TERMINAL | Report back, orchestrator must regenerate |
-| Missing/invalid credentials | TERMINAL | Report back, note which service needs credentials |
-| Workflow "has issues" on activation | TERMINAL | Likely credential-dependent nodes without real creds |
+| Missing/invalid credentials (real service required) | TERMINAL | Report back, note which service needs credentials |
+| Credential-dependent node can be simulated | RECOVERABLE | Ask orchestrator to replace with Set node simulation |
+| Workflow "has issues" on activation | RECOVERABLE | Likely credential-dependent nodes, ask orchestrator to simulate |
 | Wrong expression syntax | RECOVERABLE | Send error details to orchestrator for fix |
 | Missing required field in node | RECOVERABLE | Send error details to orchestrator for fix |
 | Wrong node typeVersion | RECOVERABLE | Send error details to orchestrator for fix |

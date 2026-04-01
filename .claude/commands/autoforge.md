@@ -48,6 +48,13 @@ Have a conversation with the user to clarify requirements before generating.
 
 Wait for the orchestrator to complete. Verify that `workflow.json` exists in the output directory.
 
+Then run structural validation:
+```bash
+bash verify.sh <OUTPUT_DIR>/
+```
+
+If validation fails, re-dispatch the orchestrator with the specific failures and ask it to fix the workflow before proceeding.
+
 ## Step 3: Run Deployer
 
 Once `workflow.json` exists, dispatch the deployer agent:
@@ -108,7 +115,7 @@ Spec: output/<timestamp>/spec.md
 Workflow: output/<timestamp>/workflow.json (last version)
 Failure report: output/<timestamp>/failure-report.md
 
-The workflow JSON is still valid and can be imported manually into n8n.
+Check the failure report for details on what went wrong and how to resolve it manually.
 ```
 
 ## Notes

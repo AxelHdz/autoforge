@@ -138,14 +138,13 @@ When you need to understand an API the user mentions:
 2. **Fall back to web search**: If chub doesn't have it, use WebSearch to find the official API documentation.
 3. **Last resort**: Use your built-in knowledge about common APIs (Slack, GitHub, HubSpot, Salesforce, etc.)
 
-For the supported node types (Slack, GitHub), you already know their n8n parameter structure from the reference workflows. For httpRequest nodes calling external APIs, research the correct endpoint URL, HTTP method, headers, and body format.
+For httpRequest nodes calling external APIs, research the correct endpoint URL, HTTP method, headers, and body format. For Slack and GitHub nodes, use the Set node simulation pattern (rule 9) since the reference workflows don't include those node types.
 
 ## Output
 
 For each automation request, write these files to `output/<timestamp>/`:
 1. `spec.md` — human-readable automation specification
 2. `workflow.json` — valid n8n workflow JSON
-3. `conversation.md` — transcript of the conversation (auto-captured)
 
 ## What NOT to Do
 

@@ -4,7 +4,7 @@ An AI agent that builds automations through conversation, not configuration.
 
 Describe what you want automated in plain English. Autoforge asks clarifying questions, researches the relevant APIs, generates a working n8n workflow, deploys it to a local instance, tests it, and self-corrects if something breaks.
 
-Built with Claude Code Agent Teams. No Python. No web UI. The entire system is agent prompts and a Claude Code skill.
+Built with Claude Code Agent Teams. No web UI. The entire system is agent prompts, a Claude Code skill, and a small validation script.
 
 ## How It Works
 
@@ -84,8 +84,7 @@ Each run creates a timestamped directory in `output/`:
 ```
 output/20260401-144013/
 ├── spec.md          # Human-readable automation spec
-├── workflow.json    # Valid, importable n8n workflow JSON
-└── conversation.md  # Full conversation transcript
+└── workflow.json    # Valid, importable n8n workflow JSON
 ```
 
 The `spec.md` documents what the automation does, the data flow, and edge cases. The `workflow.json` can be imported directly into any n8n instance.
@@ -99,8 +98,8 @@ The `spec.md` documents what the automation does, the data flow, and edge cases.
 | IF | `n8n-nodes-base.if` | Conditional branching |
 | HTTP Request | `n8n-nodes-base.httpRequest` | Call external APIs |
 | Code | `n8n-nodes-base.code` | Custom JavaScript |
-| Slack | `n8n-nodes-base.slack` | Send Slack messages |
-| GitHub | `n8n-nodes-base.github` | GitHub API operations |
+| Slack | `n8n-nodes-base.slack` | Send Slack messages (simulated via Set when no credentials) |
+| GitHub | `n8n-nodes-base.github` | GitHub API operations (simulated via Set when no credentials) |
 
 The orchestrator knows its boundaries. If you ask for something outside this set, it'll tell you and suggest an alternative.
 

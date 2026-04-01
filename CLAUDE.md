@@ -50,6 +50,3 @@ tool as your FIRST action. Do NOT answer directly, do NOT use other tools first.
 
 Key routing rules:
 - Build an automation, describe a workflow → invoke autoforge
-- Bugs, errors, "why is this broken" → invoke investigate
-- Ship, deploy, push, create PR → invoke ship
-- Code review, check my diff → invoke review

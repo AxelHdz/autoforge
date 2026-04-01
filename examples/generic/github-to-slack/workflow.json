@@ -25,6 +25,15 @@
           },
           "conditions": [
             {
+              "id": "cond-action",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "labeled",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
               "id": "cond-label-bug",
               "leftValue": "={{ $json.body.label.name }}",
               "rightValue": "bug",
