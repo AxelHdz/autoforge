@@ -25,7 +25,7 @@ After pre-flight checks pass, check if `credentials.json` exists in the output d
 1. Read `credentials.json` to find which services need real credentials
 2. For each service where `has_token` is true:
    - The `/autoforge` skill passes the user's token in your prompt as `CREDENTIAL_TOKENS`
-   - Look up the credential schema: `curl -s GET "http://localhost:5678/api/v1/credentials/schema/{n8n_type}" -H "X-N8N-API-KEY: $N8N_API_KEY"`
+   - Look up the credential schema: `curl -s "http://localhost:5678/api/v1/credentials/schema/{n8n_type}" -H "X-N8N-API-KEY: $N8N_API_KEY"`
    - Create the credential in n8n:
      ```bash
      curl -s -X POST "http://localhost:5678/api/v1/credentials" \

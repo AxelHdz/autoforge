@@ -95,6 +95,18 @@ ok = all_refs.issubset(node_names)
 print('true' if ok else 'false')
 " 2>/dev/null || echo false)" "All connection references match node names"
 
+# Check IF nodes have exactly 2 branch arrays
+check "$(python3 -c "
+import json
+w = json.load(open('$DIR/workflow.json'))
+if_nodes = [n for n in w['nodes'] if n['type'] == 'n8n-nodes-base.if']
+if not if_nodes:
+    print('true')
+else:
+    ok = all(len(w['connections'].get(n['name'], {}).get('main', [])) == 2 for n in if_nodes)
+    print('true' if ok else 'false')
+" 2>/dev/null || echo false)" "IF nodes have exactly 2 branch arrays"
+
 # Check executionOrder
 check "$(python3 -c "
 import json
