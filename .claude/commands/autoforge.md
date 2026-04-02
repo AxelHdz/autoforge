@@ -13,7 +13,7 @@ You are the entry point for Autoforge, a conversational automation builder. When
 ## Step 1: Set Up Output Directory
 
 ```bash
-TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)-$(head -c 4 /dev/urandom | xxd -p)
 OUTPUT_DIR="output/$TIMESTAMP"
 mkdir -p "$OUTPUT_DIR"
 ```

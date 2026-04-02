@@ -28,11 +28,18 @@ After pre-flight checks pass, check if `credentials.json` exists in the output d
    - Look up the credential schema: `curl -s "http://localhost:5678/api/v1/credentials/schema/{n8n_type}" -H "X-N8N-API-KEY: $N8N_API_KEY"`
    - Create the credential in n8n:
      ```bash
+     # Use the schema to determine the correct field name (accessToken, apiKey, etc.)
      curl -s -X POST "http://localhost:5678/api/v1/credentials" \
        -H "X-N8N-API-KEY: $N8N_API_KEY" \
        -H "Content-Type: application/json" \
-       -d '{"name": "<credential_name>", "type": "<n8n_type>", "data": {"accessToken": "<token>"}}'
+       -d '{"name": "<credential_name>", "type": "<n8n_type>", "data": {<field_from_schema>: "<token>"}}'
      ```
+   - Match the `data` field name to the schema response:
+     - `slackApi` → `{"accessToken": "<token>"}`
+     - `githubApi` → `{"accessToken": "<token>"}`
+     - `hubspotApi` → `{"apiKey": "<token>"}`
+     - `sendGridApi` → `{"apiKey": "<token>"}`
+     - `httpHeaderAuth` → `{"name": "<header_name>", "value": "<token>"}`
    - Extract the credential ID from the response
    - Update the workflow JSON: find nodes that reference this credential name, fill in the `id` field
 
@@ -65,10 +72,11 @@ curl -s -X POST http://localhost:5678/api/v1/workflows \
   -d @<workflow_file>
 ```
 
-Extract the workflow ID from the response using grep (the n8n API sometimes returns responses with raw newlines that break JSON parsers):
+Extract the workflow ID from the response. The workflow ID appears near the start of the response, before any node IDs. Use `head -1` (not `tail -1`) to get the workflow-level ID:
 ```bash
-WF_ID=$(echo "$RESULT" | grep -o '"id":"[^"]*"' | tail -1 | sed 's/"id":"//;s/"//')
+WF_ID=$(echo "$RESULT" | grep -o '"id":"[^"]*"' | head -1 | sed 's/"id":"//;s/"//')
 ```
+Note: n8n API responses sometimes contain raw newlines that break jq. Use grep or python3 with `strict=False`.
 
 If import fails, classify the error and report back.
 

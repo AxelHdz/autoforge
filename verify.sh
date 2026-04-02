@@ -79,6 +79,14 @@ ok = 'webhook' in first or 'manualTrigger' in first or 'trigger' in first.lower(
 print('true' if ok else 'false')
 " 2>/dev/null || echo false)" "First node is a trigger"
 
+# Warn if manualTrigger (can't be activated via API)
+python3 -c "
+import json
+w = json.load(open('$DIR/workflow.json'))
+if w['nodes'][0]['type'] == 'n8n-nodes-base.manualTrigger':
+    print('  WARN: manualTrigger cannot be activated via n8n API. Use webhook for deployable workflows.')
+" 2>/dev/null
+
 # Check connections reference valid node names
 check "$(python3 -c "
 import json
