@@ -18,6 +18,33 @@ REASON: [which check failed]
 ACTION: [what the user needs to do]
 ```
 
+## Credential Provisioning
+
+After pre-flight checks pass, check if `credentials.json` exists in the output directory. If it does:
+
+1. Read `credentials.json` to find which services need real credentials
+2. For each service where `has_token` is true:
+   - The `/autoforge` skill passes the user's token in your prompt as `CREDENTIAL_TOKENS`
+   - Look up the credential schema: `curl -s GET "http://localhost:5678/api/v1/credentials/schema/{n8n_type}" -H "X-N8N-API-KEY: $N8N_API_KEY"`
+   - Create the credential in n8n:
+     ```bash
+     curl -s -X POST "http://localhost:5678/api/v1/credentials" \
+       -H "X-N8N-API-KEY: $N8N_API_KEY" \
+       -H "Content-Type: application/json" \
+       -d '{"name": "<credential_name>", "type": "<n8n_type>", "data": {"accessToken": "<token>"}}'
+     ```
+   - Extract the credential ID from the response
+   - Update the workflow JSON: find nodes that reference this credential name, fill in the `id` field
+
+3. For services where `has_token` is false or `simulated` is true: no action needed (already simulated with Set nodes)
+
+**Token handling rules:**
+- Tokens come from the `/autoforge` skill prompt, NOT from files
+- NEVER write tokens to any file (not credentials.json, not workflow.json, not logs)
+- After provisioning, discard the token from context
+
+If credential creation fails, classify as RECOVERABLE and ask the orchestrator to fall back to Set node simulation for that service.
+
 ## Deployment Workflow
 
 ### Step 1: Read and Validate
@@ -161,7 +188,7 @@ Keep the workflow active only if the user explicitly asks to leave it running.
 ## What NOT to Do
 
 - Do NOT modify the workflow JSON yourself — that's the orchestrator's job
-- Do NOT attempt to create n8n credentials programmatically
+- Do NOT write tokens or secrets to any file on disk
 - Do NOT retry TERMINAL errors — report and stop
 - Do NOT skip pre-flight checks
 - Do NOT use jq to parse n8n API responses (they contain raw newlines that break jq) — use grep or python3 with `strict=False`

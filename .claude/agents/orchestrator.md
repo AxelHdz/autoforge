@@ -21,6 +21,51 @@ Ask ONLY what you need to generate the workflow. Pick from:
 
 Never ask more than 4 questions. Never ask about infrastructure, hosting, or deployment. The deployer agent handles that.
 
+### Phase 2.5: Credential Discovery
+After clarifying requirements, identify which external services the workflow needs. For each service, ask the user if they have an API token. One question per service, grouped together:
+
+"This workflow uses **Slack** and **GitHub**. Do you have API tokens for either? If not, I'll simulate them."
+
+**Credential type mapping:**
+
+| Service     | n8n Credential Type | Required Field | How to Get It                                              |
+|-------------|--------------------|-----------------|------------------------------------------------------------|
+| Slack       | slackApi           | accessToken     | Slack App → OAuth & Permissions → Bot User OAuth Token     |
+| GitHub      | githubApi          | accessToken     | GitHub → Settings → Developer → Personal Access Tokens     |
+| HubSpot     | hubspotApi         | apiKey          | HubSpot → Settings → Integrations → API Key               |
+| SendGrid    | sendGridApi        | apiKey          | SendGrid → Settings → API Keys → Create                   |
+| Generic API | httpHeaderAuth     | name, value     | The API's auth header name + token value                   |
+
+Based on the user's response, write `output/<timestamp>/credentials.json`:
+
+```json
+{
+  "services": [
+    {
+      "service": "slack",
+      "n8n_type": "slackApi",
+      "credential_name": "Autoforge Slack",
+      "has_token": true,
+      "nodes_using": ["Send Slack Notification"]
+    }
+  ]
+}
+```
+
+**NEVER write tokens to any file.** Tokens stay in conversation context only. The `/autoforge` skill passes them to the deployer in-memory.
+
+For services **with** tokens: generate real n8n service nodes with a credential reference:
+```json
+{
+  "type": "n8n-nodes-base.slack",
+  "typeVersion": 2.3,
+  "credentials": { "slackApi": { "id": "", "name": "Autoforge Slack" } }
+}
+```
+The deployer will fill in the credential `id` after provisioning.
+
+For services **without** tokens: use the Set node simulation pattern (rule 9).
+
 ### Phase 3: Generate Spec
 Write a human-readable automation spec to `output/<timestamp>/spec.md`:
 
@@ -96,11 +141,10 @@ These rules are NON-NEGOTIABLE. Violating any will produce invalid workflows.
 6. **Set node assignments**: Each assignment needs `"id"`, `"name"`, `"value"`, and `"type"` (string/number/boolean).
 7. **Expressions**: Use `={{ $json.fieldName }}` to reference data from the previous node. For webhook body data: `={{ $json.body.fieldName }}`.
 8. **IF conditions**: Use `"leftValue": "={{ $json.field }}"`, `"rightValue": "comparison"`, and `"operator": {"type": "string", "operation": "equals"}`.
-9. **Credentials**: n8n REJECTS workflows with credential-dependent nodes (Slack, GitHub) if the credentials don't exist in the n8n instance. For demo/portfolio purposes, simulate these services using Set nodes instead:
-   - Instead of a Slack node, use a Set node that outputs `slack_channel`, `slack_message`, and `status` fields
-   - Instead of a GitHub node, use a Set node that outputs the API action and parameters
-   - Add a comment in spec.md noting which Set nodes would be replaced with real service nodes in production
-   - If real credentials are available (deployer confirms), use the actual service nodes
+9. **Credentials**: Determined by Phase 2.5 (Credential Discovery).
+   - If the user provided a token for a service: use the real n8n node with a credential reference (`"credentials": {"slackApi": {"id": "", "name": "Autoforge Slack"}}`). The deployer provisions the credential and fills in the ID.
+   - If no token: simulate with a Set node that outputs the service's expected fields (`slack_channel`, `slack_message`, `status`). Add a note in spec.md about which nodes are simulated.
+   - n8n REJECTS workflows with credential-dependent nodes if credentials don't exist. The deployer handles provisioning before import.
 
 ### Reference Workflows
 

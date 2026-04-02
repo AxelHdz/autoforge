@@ -55,6 +55,16 @@ bash verify.sh <OUTPUT_DIR>/
 
 If validation fails, re-dispatch the orchestrator with the specific failures and ask it to fix the workflow before proceeding.
 
+## Step 2.5: Collect Credential Tokens
+
+After the orchestrator completes, check if `credentials.json` exists in the output directory. If it does:
+
+1. Read it to see which services have `has_token: true`
+2. For each service that needs a token, the orchestrator already asked the user during the conversation. The user's token should be in the orchestrator's output context.
+3. Collect the tokens and pass them to the deployer in-memory via the agent prompt (as `CREDENTIAL_TOKENS`). **NEVER write tokens to files.**
+
+If `credentials.json` doesn't exist or all services are simulated, skip this step.
+
 ## Step 3: Run Deployer
 
 Once `workflow.json` exists, dispatch the deployer agent:
@@ -65,9 +75,14 @@ You are the Autoforge deployer agent. Read your full instructions at .claude/age
 
 Deploy and test the workflow at: <OUTPUT_DIR>/workflow.json
 
-Run pre-flight checks, import to n8n, activate, and test with a realistic payload.
+Run pre-flight checks, provision any credentials, import to n8n, activate, and test with a realistic payload.
 Report the result.
+
+CREDENTIAL_TOKENS (if any — use these to provision credentials in n8n, then discard):
+<service>: <token>
 ```
+
+If there are no credential tokens, omit the `CREDENTIAL_TOKENS` section entirely.
 
 ## Step 4: Handle Self-Correction
 
