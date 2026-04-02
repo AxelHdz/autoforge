@@ -3,7 +3,7 @@
 # Usage: ./verify.sh [output_dir]
 #   If no dir specified, checks the most recent output directory.
 
-set -e
+set +e  # Don't exit on first failure — report all checks
 
 if [ -n "$1" ]; then
   DIR="$1"
@@ -106,6 +106,22 @@ else:
     ok = all(len(w['connections'].get(n['name'], {}).get('main', [])) == 2 for n in if_nodes)
     print('true' if ok else 'false')
 " 2>/dev/null || echo false)" "IF nodes have exactly 2 branch arrays"
+
+# Check no duplicate node IDs
+check "$(python3 -c "
+import json
+w = json.load(open('$DIR/workflow.json'))
+ids = [n['id'] for n in w['nodes']]
+print('true' if len(ids) == len(set(ids)) else 'false')
+" 2>/dev/null || echo false)" "No duplicate node IDs"
+
+# Check no duplicate node names
+check "$(python3 -c "
+import json
+w = json.load(open('$DIR/workflow.json'))
+names = [n['name'] for n in w['nodes']]
+print('true' if len(names) == len(set(names)) else 'false')
+" 2>/dev/null || echo false)" "No duplicate node names"
 
 # Check executionOrder
 check "$(python3 -c "
